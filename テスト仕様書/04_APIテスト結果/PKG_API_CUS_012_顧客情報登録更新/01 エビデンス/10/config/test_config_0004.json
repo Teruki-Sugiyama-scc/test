@@ -1,0 +1,7 @@
+{
+    "title": "No.4 正常系 空文字列 登録",
+    "db": "db_顧客_4,db_合算請求先_4,db_属性_4,db_アプローチ_4",
+    "status_code": 200,
+    "request": "test_request_0004.golden",
+    "response": "test_response_0004.golden"
+}

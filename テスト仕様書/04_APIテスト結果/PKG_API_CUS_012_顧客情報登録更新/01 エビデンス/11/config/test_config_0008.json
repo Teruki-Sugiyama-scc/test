@@ -1,0 +1,6 @@
+{
+    "title": "No.8 異常系 認証エラー",
+    "status_code": 401,
+    "request": "test_request_0008.golden",
+    "response": "test_response_0008.golden"
+}

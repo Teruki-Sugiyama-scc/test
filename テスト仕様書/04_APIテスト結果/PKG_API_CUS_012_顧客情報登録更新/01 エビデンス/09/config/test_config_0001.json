@@ -1,0 +1,7 @@
+{
+    "title": "No.1 正常系 新規登録",
+    "db": "db_顧客_1,db_顧客属性_1,db_合算請求先_1,db_顧客アプローチ_1",
+    "status_code": 200,
+    "request": "test_request_0001.golden",
+    "response": "test_response_0001.golden"
+}

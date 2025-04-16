@@ -1,0 +1,6 @@
+{
+    "title": "No.11 異常系 DBへの接続エラー",
+    "status_code": 500,
+    "request": "test_request_0011.golden",
+    "response": "test_response_0011.golden"
+}

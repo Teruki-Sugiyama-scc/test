@@ -1,0 +1,861 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>data: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">ZO_School_Wares/api/cus/api-cus-012/infra/data/repository.go (87.1%)</option>
+				
+				<option value="file1">ZO_School_Wares/api/cus/api-cus-012/infra/web/handler.go (97.5%)</option>
+				
+				<option value="file2">ZO_School_Wares/api/cus/api-cus-012/usecase/service.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package data
+
+import (
+        model "ZO_School_Wares/api/common/entity/domain"
+        footer "ZO_School_Wares/api/common/footer/domain"
+        "ZO_School_Wares/api/common/sequence"
+        b "ZO_School_Wares/api/common/setcombinedbillingcustomer"
+        f "ZO_School_Wares/api/common/setfamilymembers"
+        "ZO_School_Wares/api/cus/api-cus-012/domain"
+        "ZO_School_Wares/api/cus/api-cus-012/usecase/repository"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+        "gorm.io/gorm"
+)
+
+type serviceRepository struct {
+        db *gorm.DB
+}
+
+func NewServiceRepository(db *gorm.DB) repository.ServiceRepository <span class="cov8" title="1">{
+        return &amp;serviceRepository{db: db}
+}</span>
+
+// 顧客情報 登録更新
+func (t *serviceRepository) UpdateCustomersInfo(param domain.RequestParam, c echo.Context) (domain.ResponseData, error) <span class="cov8" title="1">{
+        var res domain.ResponseData
+
+        // 2.顧客データを登録・更新する
+        var e = param.EntryData
+        var targetCustomerNo string = ""
+        var targetFamilyId *int32 = nil
+        // var newVersionNo uint32
+        if e.CustomerId != nil </span><span class="cov8" title="1">{ // 更新モード
+                var curr model.Customer
+                result := t.db.Take(&amp;curr, e.CustomerId)
+                if result.Error != nil </span><span class="cov8" title="1">{
+                        // log.Printf("customer(%v) not found", *e.CustomerId)
+                        return res, result.Error
+                }</span> else<span class="cov8" title="1"> if curr.VersionNo != *e.VersionNo </span><span class="cov8" title="1">{
+                        // log.Printf("customer(%v) conflict", *e.CustomerId)
+                        return res, gorm.ErrDuplicatedKey
+                }</span>
+                // newVersionNo = curr.VersionNo + 1
+                <span class="cov8" title="1">targetCustomerNo = curr.CustomerNo
+                targetFamilyId = curr.FamilyId</span>
+        } else<span class="cov8" title="1"> { // 新規登録モード
+                // 2-4．顧客番号の採番を行い、採番結果を内部変数に保持する
+                if e.CustomerNo == nil </span><span class="cov0" title="0">{
+                        // 2-4-1．番号採番共通関数を呼び出す
+                        seq, err := sequence.GetSequence(t.db, "2", 1) // "2":顧客番号
+                        if err != nil </span><span class="cov0" title="0">{
+                                // log.Printf("sequence(2:customer_id) not found")
+                                return res, err // エラー が起きた場合
+                        }</span>
+                        // 2-4-3．採番した顧客番号を以下の内部変数に保持する
+                        <span class="cov0" title="0">targetCustomerNo = seq[0]</span>
+                } else<span class="cov8" title="1"> {
+                        targetCustomerNo = *e.CustomerNo
+                }</span>
+        }
+
+        <span class="cov8" title="1">if targetFamilyId == nil &amp;&amp; len(e.FamilyMembersList) &gt; 0 </span><span class="cov8" title="1">{
+                // ※登録対象の顧客がすでに家族IDを持っている、もしくは登録すべき家族情報が無い場合は採番不要
+                seq, err := sequence.GetSequence(t.db, "3", 1) // "3":家族ID
+                if err != nil </span><span class="cov0" title="0">{
+                        // log.Printf("sequence(3:fami) not found")
+                        return res, err // エラー が起きた場合
+                }</span>
+
+                // 2-4-6．採番した家族IDを数値型にキャスト
+                <span class="cov8" title="1">i1, _ := strconv.Atoi(seq[0])
+                i2 := int32(i1)
+                targetFamilyId = &amp;i2</span>
+        }
+
+        <span class="cov8" title="1">err1 := t.db.Set("context", c).Transaction(func(tx *gorm.DB) error </span><span class="cov8" title="1">{
+                // 2-5. 顧客データを登録・更新
+                targetCustomerID, err := upsertCustomer(tx, param.EntryData, targetCustomerNo)
+                if err != nil </span><span class="cov8" title="1">{
+                        // log.Printf("upsertCustomer(); err=%v", err.Error())
+                        return err
+                }</span>
+
+                // 4. 顧客属性 登録・更新
+                <span class="cov8" title="1">if err := saveAttributes(tx, e, targetCustomerID); err != nil </span><span class="cov0" title="0">{
+                        // log.Printf("saveAttributes(); err=%v", err.Error())
+                        return err
+                }</span>
+
+                // 5. 顧客アプローチ可否データを登録・更新
+                <span class="cov8" title="1">if err := saveApproach(tx, e, targetCustomerID); err != nil </span><span class="cov0" title="0">{
+                        // log.Printf("saveApproach(); err=%v", err.Error())
+                        return err
+                }</span>
+
+                // 6.家族データを更新する
+                <span class="cov8" title="1">if len(e.FamilyMembersList) &gt; 0 </span><span class="cov8" title="1">{
+                        uTargetCustomerID := uint32(targetCustomerID)
+                        familyMembersList := make([]f.FamilyMembers, 0)
+                        for _, ef := range e.FamilyMembersList </span><span class="cov8" title="1">{
+                                familyMembersList = append(familyMembersList, f.FamilyMembers{
+                                        CustomerId: ef.CustomerId,
+                                        IsFamily:   ef.IsFamily,
+                                        VersionNo: func() *uint32 </span><span class="cov8" title="1">{
+                                                if ef.VersionNo != nil </span><span class="cov8" title="1">{
+                                                        return ef.VersionNo
+                                                }</span> else<span class="cov0" title="0"> {
+                                                        zero := uint32(0)
+                                                        return &amp;zero
+                                                }</span>
+                                        }(),
+                                })
+                        }
+                        <span class="cov8" title="1">_, err := f.SetFamilyMembers(&amp;uTargetCustomerID, targetFamilyId, familyMembersList, tx, c)
+                        if err != nil </span><span class="cov8" title="1">{
+                                // log.Printf("SetFamilyMembers(); err=%v", err.Error())
+                                return err
+                        }</span>
+                }
+
+                // 7.請求先データを更新する
+                <span class="cov8" title="1">if e.CombinedBillingCustomerId != nil </span><span class="cov8" title="1">{
+                        //         7-2. 請求先顧客 (合算先顧客) 情報を登録する
+                        if e.CombinedBillingVersionNo == nil </span><span class="cov8" title="1">{
+                                // log.Printf("CombinedBillingVersionNo IS NULL")
+                                zero := uint32(0)
+                                e.CombinedBillingVersionNo = &amp;zero
+                        }</span>
+
+                        // 合算先確認
+                        <span class="cov8" title="1">var bcustomer model.Customer
+                        if err := tx.Take(&amp;bcustomer, *e.CombinedBillingCustomerId).Error; err != nil </span><span class="cov8" title="1">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">_, err := b.SetCombinedBillingCustomer(&amp;targetCustomerID,
+                                e.CombinedBillingCustomerId,
+                                e.CombinedBillingDeleteFlg,
+                                e.CombinedBillingVersionNo,
+                                tx, c)
+                        if err != nil </span><span class="cov0" title="0">{
+                                // log.Printf("SetCombinedBillingCustomer(); err=%v", err.Error())
+                                return err
+                        }</span>
+                }
+
+                // 8.更新後の顧客データを再取得する
+                <span class="cov8" title="1">result := tx.Model(&amp;model.Customer{}).Take(&amp;res.RowList, targetCustomerID)
+                if result.Error != nil </span><span class="cov0" title="0">{
+                        return result.Error
+                }</span>
+                <span class="cov8" title="1">res.RowCount = int(result.RowsAffected)
+
+                // 9-3. 正常終了 COMMIT
+                return nil</span>
+        })
+
+        <span class="cov8" title="1">if err1 != nil </span><span class="cov8" title="1">{
+                return res, err1
+        }</span>
+
+        <span class="cov8" title="1">return res, nil</span>
+}
+
+func upsertCustomer(tx *gorm.DB, e *domain.EntryData, targetCustomerNo string) (int32, error) <span class="cov8" title="1">{
+        var err error
+        if e.CustomerId != nil </span><span class="cov8" title="1">{ // 上書更新モード
+                err = updateCustomer(tx, e)
+        }</span> else<span class="cov8" title="1"> {
+                err = createCustomer(tx, e, targetCustomerNo)
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                return 0, err
+        }</span>
+
+        // 3.更新後の顧客データを再取得する
+        // 3-1. 新規登録における、採番された顧客IDの取得が目的
+        <span class="cov8" title="1">var customer model.Customer
+        if err := tx.Take(&amp;customer, "customer_no = ?", targetCustomerNo).Error; err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+
+        // 3-1-3. 顧客IDの保存
+        <span class="cov8" title="1">return customer.CustomerId, nil</span> // 対象顧客ID
+}
+
+func updateCustomer(tx *gorm.DB, e *domain.EntryData) error <span class="cov8" title="1">{
+        newvalue := map[string]interface{}{}
+        if e.StudentLastName != nil </span><span class="cov8" title="1">{
+                newvalue["student_last_name"] = *e.StudentLastName
+        }</span>
+        <span class="cov8" title="1">if e.StudentLastName != nil </span><span class="cov8" title="1">{
+                newvalue["student_last_name"] = *e.StudentLastName
+        }</span>
+        <span class="cov8" title="1">if e.StudentFirstName != nil </span><span class="cov8" title="1">{
+                newvalue["student_first_name"] = *e.StudentFirstName
+        }</span>
+        <span class="cov8" title="1">if e.StudentLastNameKana != nil </span><span class="cov8" title="1">{
+                newvalue["student_last_name_kana"] = *e.StudentLastNameKana
+        }</span>
+        <span class="cov8" title="1">if e.StudentFirstNameKana != nil </span><span class="cov8" title="1">{
+                newvalue["student_first_name_kana"] = *e.StudentFirstNameKana
+        }</span>
+        <span class="cov8" title="1">if e.Birthday != nil </span><span class="cov8" title="1">{
+                newvalue["birthday"] = *e.Birthday
+        }</span>
+        <span class="cov8" title="1">if e.GenderCategoryCd != nil </span><span class="cov8" title="1">{
+                newvalue["gender_category_cd"] = *e.GenderCategoryCd
+        }</span>
+        <span class="cov8" title="1">if e.StudentMailAddress != nil </span><span class="cov8" title="1">{
+                newvalue["student_mail_address"] = *e.StudentMailAddress
+        }</span>
+        <span class="cov8" title="1">if e.ContractorLastName != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_last_name"] = *e.ContractorLastName
+        }</span>
+        <span class="cov8" title="1">if e.ContractorFirstName != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_first_name"] = *e.ContractorFirstName
+        }</span>
+        <span class="cov8" title="1">if e.ContractorLastNameKana != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_last_name_kana"] = *e.ContractorLastNameKana
+        }</span>
+        <span class="cov8" title="1">if e.ContractorFirstNameKana != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_first_name_kana"] = *e.ContractorFirstNameKana
+        }</span>
+        <span class="cov8" title="1">if e.ContractorRelationship != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_relationship"] = *e.ContractorRelationship
+        }</span>
+        <span class="cov8" title="1">if e.TelephoneNumber1 != nil </span><span class="cov8" title="1">{
+                newvalue["telephone_number1"] = *e.TelephoneNumber1
+        }</span>
+        <span class="cov8" title="1">if e.TelephoneNumber1Note != nil </span><span class="cov8" title="1">{
+                newvalue["telephone_number1_note"] = *e.TelephoneNumber1Note
+        }</span>
+        <span class="cov8" title="1">if e.TelephoneNumber2 != nil </span><span class="cov8" title="1">{
+                newvalue["telephone_number2"] = *e.TelephoneNumber2
+        }</span>
+        <span class="cov8" title="1">if e.TelephoneNumber2Note != nil </span><span class="cov8" title="1">{
+                newvalue["telephone_number2_note"] = *e.TelephoneNumber2Note
+        }</span>
+        <span class="cov8" title="1">if e.EmergencyTelephoneNumber != nil </span><span class="cov8" title="1">{
+                newvalue["emergency_telephone_number"] = *e.EmergencyTelephoneNumber
+        }</span>
+        <span class="cov8" title="1">if e.FaxNumber != nil </span><span class="cov8" title="1">{
+                newvalue["emergency_telephone_number_note"] = *e.FaxNumber
+        }</span>
+        <span class="cov8" title="1">if e.FaxNumber != nil </span><span class="cov8" title="1">{
+                newvalue["fax_number"] = *e.FaxNumber
+        }</span>
+        <span class="cov8" title="1">if e.FaxNumberNote != nil </span><span class="cov8" title="1">{
+                newvalue["fax_number_note"] = *e.FaxNumberNote
+        }</span>
+        <span class="cov8" title="1">if e.ContractorMailAddress != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_mail_address"] = *e.ContractorMailAddress
+        }</span>
+        <span class="cov8" title="1">if e.ContractorPostCode != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_post_code"] = *e.ContractorPostCode
+        }</span>
+        <span class="cov8" title="1">if e.ContractorPrefectureCategoryCd != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_prefecture_category_cd"] = *e.ContractorPrefectureCategoryCd
+        }</span>
+        <span class="cov8" title="1">if e.ContractorAddress1 != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_address1"] = *e.ContractorAddress1
+        }</span>
+        <span class="cov8" title="1">if e.ContractorAddress2 != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_address2"] = *e.ContractorAddress2
+        }</span>
+        <span class="cov8" title="1">if e.ContractorAddress3 != nil </span><span class="cov8" title="1">{
+                newvalue["contractor_address3"] = *e.ContractorAddress3
+        }</span>
+        <span class="cov8" title="1">if e.Note != nil </span><span class="cov8" title="1">{
+                newvalue["note"] = *e.Note
+        }</span>
+        <span class="cov8" title="1">if e.ApproachPermissionMemo != nil </span><span class="cov8" title="1">{
+                newvalue["approach_permission_memo"] = *e.ApproachPermissionMemo
+        }</span>
+        <span class="cov8" title="1">if e.IsVip != nil </span><span class="cov8" title="1">{
+                newvalue["is_vip"] = *e.IsVip
+        }</span>
+        <span class="cov8" title="1">if e.IsVipNote != nil </span><span class="cov8" title="1">{
+                newvalue["is_vip_note"] = *e.IsVipNote
+        }</span>
+        <span class="cov8" title="1">if e.EnrollmentDesired != nil </span><span class="cov8" title="1">{
+                newvalue["enrollment_desired"] = *e.EnrollmentDesired
+        }</span>
+        <span class="cov8" title="1">if e.IsDemand != nil </span><span class="cov8" title="1">{
+                newvalue["is_demand"] = *e.IsDemand
+        }</span>
+        <span class="cov8" title="1">if e.SchoolYearCategoryCd != nil </span><span class="cov8" title="1">{
+                newvalue["school_year_category_cd"] = *e.SchoolYearCategoryCd
+        }</span>
+        <span class="cov8" title="1">if e.MainClassRoomCd != nil </span><span class="cov8" title="1">{
+                newvalue["main_class_room_cd"] = *e.MainClassRoomCd
+        }</span>
+        <span class="cov8" title="1">if e.EnrolledElementarySchoolCd != nil </span><span class="cov8" title="1">{
+                newvalue["enrolled_elementary_school_cd"] = *e.EnrolledElementarySchoolCd
+        }</span>
+        <span class="cov8" title="1">if e.EnrolledElementarySchoolNote != nil </span><span class="cov8" title="1">{
+                newvalue["enrolled_elementary_school_note"] = *e.EnrolledElementarySchoolNote
+        }</span>
+        <span class="cov8" title="1">if e.EnrolledJuniorHighSchoolSchoolCd != nil </span><span class="cov8" title="1">{
+                newvalue["enrolled_junior_high_school_school_cd"] = *e.EnrolledJuniorHighSchoolSchoolCd
+        }</span>
+        <span class="cov8" title="1">if e.EnrolledJuniorHighSchoolSchoolNote != nil </span><span class="cov8" title="1">{
+                newvalue["enrolled_junior_high_school_school_note"] = *e.EnrolledJuniorHighSchoolSchoolNote
+        }</span>
+        <span class="cov8" title="1">if e.EnrolledHighSchoolCd != nil </span><span class="cov8" title="1">{
+                newvalue["enrolled_high_school_cd"] = *e.EnrolledHighSchoolCd
+        }</span>
+        <span class="cov8" title="1">if e.EnrolledHighSchoolNote != nil </span><span class="cov8" title="1">{
+                newvalue["enrolled_high_school_note"] = *e.EnrolledHighSchoolNote
+        }</span>
+        <span class="cov8" title="1">if e.AspirationJuniorHighSchoolCd1 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_junior_high_school_cd1"] = *e.AspirationJuniorHighSchoolCd1
+        }</span>
+        <span class="cov8" title="1">if e.AspirationJuniorHighSchoolCd2 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_junior_high_school_cd2"] = *e.AspirationJuniorHighSchoolCd2
+        }</span>
+        <span class="cov8" title="1">if e.AspirationJuniorHighSchoolCd3 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_junior_high_school_cd3"] = *e.AspirationJuniorHighSchoolCd3
+        }</span>
+        <span class="cov8" title="1">if e.AspirationHighSchoolCd1 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_high_school_cd1"] = *e.AspirationHighSchoolCd1
+        }</span>
+        <span class="cov8" title="1">if e.AspirationHighSchoolCd2 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_high_school_cd2"] = *e.AspirationHighSchoolCd2
+        }</span>
+        <span class="cov8" title="1">if e.AspirationHighSchoolCd3 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_high_school_cd3"] = *e.AspirationHighSchoolCd3
+        }</span>
+        <span class="cov8" title="1">if e.AspirationUniversityCd1 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_university_cd1"] = *e.AspirationUniversityCd1
+        }</span>
+        <span class="cov8" title="1">if e.AspirationUniversityCd2 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_university_cd2"] = *e.AspirationUniversityCd2
+        }</span>
+        <span class="cov8" title="1">if e.AspirationUniversityCd3 != nil </span><span class="cov8" title="1">{
+                newvalue["aspiration_university_cd3"] = *e.AspirationUniversityCd3
+        }</span>
+        <span class="cov8" title="1">if e.BankId != nil </span><span class="cov8" title="1">{
+                if *e.BankId == 0 </span><span class="cov0" title="0">{
+                        // 0 のとき NULL で更新
+                        newvalue["bank_id"] = nil
+                }</span> else<span class="cov8" title="1"> {
+                        newvalue["bank_id"] = *e.BankId
+                }</span>
+        }
+        <span class="cov8" title="1">if e.BankBranchId != nil </span><span class="cov8" title="1">{
+                if *e.BankBranchId == 0 </span><span class="cov0" title="0">{
+                        // 0 のとき NULL で更新
+                        newvalue["bank_branch_id"] = nil
+                }</span> else<span class="cov8" title="1"> {
+                        newvalue["bank_branch_id"] = *e.BankBranchId
+                }</span>
+        }
+        // if e.BankAccountTypeId != nil {
+        //         newvalue["bank_account_type_id"] = *e.BankAccountTypeId
+        // }
+        <span class="cov8" title="1">if e.BankAccountNo != nil </span><span class="cov8" title="1">{
+                newvalue["bank_account_no"] = *e.BankAccountNo
+        }</span>
+        <span class="cov8" title="1">if e.AccountHolder != nil </span><span class="cov8" title="1">{
+                newvalue["account_holder"] = *e.AccountHolder
+        }</span>
+        <span class="cov8" title="1">if e.CustomerStatusCategoryCd != nil </span><span class="cov0" title="0">{
+                newvalue["customer_status_category_cd"] = *e.CustomerStatusCategoryCd
+        }</span>
+        //newvalue["version_no"] = gorm.Expr("version_no + 1")
+        <span class="cov8" title="1">newvalue["version_no"] = gorm.Expr("version_no + 1")
+
+        return tx.Model(&amp;model.Customer{}).
+                Where("customer_id = ?", e.CustomerId).
+                // Where("customer_no = ?", e.CustomerNo).
+                Updates(newvalue).Error</span>
+}
+
+func createCustomer(tx *gorm.DB, e *domain.EntryData, targetCustomerNo string) error <span class="cov8" title="1">{
+        //  会員種別コード 省略時 "10"
+        if e.CustomerStatusCategoryCd == nil </span><span class="cov8" title="1">{
+                ten := "10"
+                e.CustomerStatusCategoryCd = &amp;ten
+        }</span>
+
+        <span class="cov8" title="1">value := model.Customer{
+                // CustomerId:                         AUTO_INCREMENT
+                CustomerNo:                         targetCustomerNo,
+                StudentLastName:                    *e.StudentLastName,
+                StudentFirstName:                   *e.StudentFirstName,
+                StudentLastNameKana:                *e.StudentLastNameKana,
+                StudentFirstNameKana:               *e.StudentFirstNameKana,
+                Birthday:                           e.Birthday.Time,
+                GenderCategoryCd:                   *e.GenderCategoryCd,
+                StudentMailAddress:                 *e.StudentMailAddress,
+                ContractorLastName:                 *e.ContractorLastName,
+                ContractorFirstName:                *e.ContractorFirstName,
+                ContractorLastNameKana:             *e.ContractorLastNameKana,
+                ContractorFirstNameKana:            *e.ContractorFirstNameKana,
+                ContractorRelationship:             *e.ContractorRelationship,
+                TelephoneNumber1:                   *e.TelephoneNumber1,
+                TelephoneNumber1Note:               *e.TelephoneNumber1Note,
+                TelephoneNumber2:                   *e.TelephoneNumber2,
+                TelephoneNumber2Note:               *e.TelephoneNumber2Note,
+                EmergencyTelephoneNumber:           *e.EmergencyTelephoneNumber,
+                EmergencyTelephoneNumberNote:       *e.EmergencyTelephoneNumberNote,
+                FaxNumber:                          *e.FaxNumber,
+                FaxNumberNote:                      *e.FaxNumberNote,
+                ContractorMailAddress:              *e.ContractorMailAddress,
+                ContractorPostCode:                 *e.ContractorPostCode,
+                ContractorPrefectureCategoryCd:     *e.ContractorPrefectureCategoryCd,
+                ContractorAddress1:                 *e.ContractorAddress1,
+                ContractorAddress2:                 *e.ContractorAddress2,
+                ContractorAddress3:                 *e.ContractorAddress3,
+                Note:                               *e.Note,
+                ApproachPermissionMemo:             *e.ApproachPermissionMemo,
+                FamilyId:                           nil, //?
+                ContractorPassword:                 nil, //?
+                IsContractorPasswordHold:           false,
+                AccountExpirationDate:              nil,
+                IsCustomerMypageUnavailable:        false,
+                IsVip:                              *e.IsVip,
+                IsVipNote:                          *e.IsVipNote,
+                EnrollmentDesired:                  *e.EnrollmentDesired,
+                IsDemand:                           *e.IsDemand,
+                SchoolYearCategoryCd:               *e.SchoolYearCategoryCd,
+                MainClassRoomCd:                    e.MainClassRoomCd,
+                EnrolledElementarySchoolCd:         e.EnrolledElementarySchoolCd,
+                EnrolledElementarySchoolNote:       e.EnrolledElementarySchoolNote,
+                EnrolledJuniorHighSchoolSchoolCd:   e.EnrolledJuniorHighSchoolSchoolCd,
+                EnrolledJuniorHighSchoolSchoolNote: e.EnrolledJuniorHighSchoolSchoolNote,
+                EnrolledHighSchoolCd:               e.EnrolledHighSchoolCd,
+                EnrolledHighSchoolNote:             e.EnrolledHighSchoolNote,
+                AspirationJuniorHighSchoolCd1:      e.AspirationJuniorHighSchoolCd1,
+                AspirationJuniorHighSchoolCd2:      e.AspirationJuniorHighSchoolCd2,
+                AspirationJuniorHighSchoolCd3:      e.AspirationJuniorHighSchoolCd3,
+                AspirationHighSchoolCd1:            e.AspirationHighSchoolCd1,
+                AspirationHighSchoolCd2:            e.AspirationHighSchoolCd2,
+                AspirationHighSchoolCd3:            e.AspirationHighSchoolCd3,
+                AspirationUniversityCd1:            e.AspirationUniversityCd1,
+                AspirationUniversityCd2:            e.AspirationUniversityCd2,
+                AspirationUniversityCd3:            e.AspirationUniversityCd3,
+                BankId:                             e.BankId,
+                BankBranchId:                       e.BankBranchId,
+                BankAccountType:                    e.BankAccountTypeId,
+                BankAccountNo:                      e.BankAccountNo,
+                AccountHolder:                      e.AccountHolder,
+                CustomerStatusCategoryCd:           *e.CustomerStatusCategoryCd,
+        }
+
+        return tx.Create(&amp;value).Error</span>
+}
+
+func getContext(tx *gorm.DB) echo.Context <span class="cov0" title="0">{
+        context, _ := tx.Get("context")
+        c, _ := context.(echo.Context)
+        return c
+}</span>
+
+func saveAttributes(tx *gorm.DB, e *domain.EntryData, customerId int32) error <span class="cov8" title="1">{
+        targetAttributeList := make([]model.CustomerTyingAttribute, 0) // 対象属性リスト
+        addAttributeList := []model.CustomerTyingAttribute{}           // 追加属性リスト
+
+        if e.CustomerId != nil </span><span class="cov8" title="1">{ // 上書更新モード
+                // 4-2-1. 顧客属性 を取得する
+                var attributes []model.CustomerTyingAttribute
+                if err := tx.Find(&amp;attributes, "customer_id", e.CustomerId).Error; err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                // 4-2-2.「対象属性リスト」に値を格納する 追加?
+                <span class="cov8" title="1">targetAttributeList = append(targetAttributeList, attributes...)
+
+                // 4-2-4. 追加用配列定義
+                for _, ea := range e.AttributeList </span><span class="cov8" title="1">{
+                        isExist := false // 登録データ存在フラグ
+                        for i, ta := range targetAttributeList </span><span class="cov0" title="0">{
+                                // 4-2-6. 現在の登録有無確認
+                                if *ea.AttributeCd == ta.AttributeCd </span><span class="cov0" title="0">{
+                                        // 4-2-7. 顧客属性 楽観ロックチェック
+                                        if *ea.VersionNo != ta.VersionNo </span><span class="cov0" title="0">{
+                                                return gorm.ErrDuplicatedKey
+                                        }</span>
+
+                                        // 4-2-8. 対象属性を更新
+                                        <span class="cov0" title="0">targetAttributeList[i].DeleteFlg = !*ea.IsAttribute
+                                        isExist = true</span>
+                                }
+                        }
+
+                        <span class="cov8" title="1">if !isExist </span><span class="cov8" title="1">{
+                                // 4-2-10. 対象属性リストへの追加
+                                if *ea.IsAttribute </span><span class="cov8" title="1">{
+                                        addAttributeList = append(addAttributeList, model.CustomerTyingAttribute{
+                                                CustomerId:  customerId,
+                                                AttributeCd: *ea.AttributeCd,
+                                                //? callback
+                                                // DeleteFooter: footer.DeleteFooter{DeleteFlg: false},
+                                                // Footer:       footer.Footer{VersionNo: 1},
+                                        })
+                                }</span>
+                        }
+                }
+
+                <span class="cov8" title="1">targetAttributeList = append(targetAttributeList, addAttributeList...)</span>
+
+        } else<span class="cov8" title="1"> { // 新規登録モード
+                for _, ea := range e.AttributeList </span><span class="cov8" title="1">{
+                        if *ea.IsAttribute </span><span class="cov8" title="1">{
+                                addAttributeList = append(addAttributeList, model.CustomerTyingAttribute{
+                                        CustomerId:  customerId,
+                                        AttributeCd: *ea.AttributeCd,
+                                        //? callback
+                                        // DeleteFooter: footer.DeleteFooter{DeleteFlg: false},
+                                        // Footer:       footer.Footer{VersionNo: 1},
+                                })
+                        }</span>
+                }
+
+                // 4-2-17. 追加属性リスト を 対象属性リスト に追加
+                <span class="cov8" title="1">targetAttributeList = append(targetAttributeList, addAttributeList...)</span>
+        }
+
+        // 4-3. 対象属性リストを 顧客属性 に保存
+        <span class="cov8" title="1">for _, ta := range targetAttributeList </span><span class="cov8" title="1">{
+                if err := tx.Save(&amp;ta).Error; err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">t := model.CustomerTyingAttribute{
+                        CustomerId:  ta.CustomerId,
+                        AttributeCd: ta.AttributeCd,
+                }
+
+                result := tx.Find(&amp;t)
+                if result.RowsAffected == 0 </span><span class="cov0" title="0">{
+                        result = tx.Create(&amp;ta)
+                }</span> else<span class="cov8" title="1"> {
+                        result = tx.Updates(&amp;ta)
+                }</span>
+                <span class="cov8" title="1">if result.Error != nil </span><span class="cov0" title="0">{
+                        return result.Error
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func saveApproach(tx *gorm.DB, e *domain.EntryData, targetCustomerID int32) error <span class="cov8" title="1">{
+        targetApproachList := make([]model.CustomerTyingApproachPermission, 0) // 対象アプローチリスト
+        addApproachList := make([]model.CustomerTyingApproachPermission, 0)    // 追加アプローチリスト
+
+        if e.CustomerId != nil </span><span class="cov8" title="1">{ // 上書更新モード
+                // 5-2-1. 顧客アプローチ可否 を取得
+                var values []model.CustomerTyingApproachPermission
+                if err := tx.Find(&amp;values, "customer_id = ?", e.CustomerId).Error; err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                // 5-2-2.「対象アプローチリスト」に値を格納する
+                <span class="cov8" title="1">targetApproachList = append(targetApproachList, values...)
+
+                for _, ea := range e.ApproachPermissionList </span><span class="cov8" title="1">{
+                        isExist := false
+                        for i, ta := range targetApproachList </span><span class="cov0" title="0">{
+                                if *ea.ApproachPermissionCategoryCd == ta.ApproachPermissionCategoryCd </span><span class="cov0" title="0">{
+                                        // 5-2-7. アプローチ可否 楽観ロックチェック
+                                        if *ea.VersionNo != ta.VersionNo </span><span class="cov0" title="0">{
+                                                return gorm.ErrDuplicatedKey
+                                        }</span>
+
+                                        // 5-2-8. 対象アプローチ可否を更新
+                                        <span class="cov0" title="0">targetApproachList[i].DeleteFlg = !*ea.IsApproachPermission
+                                        isExist = true</span>
+                                }
+                        }
+
+                        <span class="cov8" title="1">if !isExist </span><span class="cov8" title="1">{
+                                // 5-2-10. 対象アプローチリストへの追加
+                                if *ea.IsApproachPermission </span><span class="cov8" title="1">{
+                                        a := model.CustomerTyingApproachPermission{
+                                                CustomerId:                   targetCustomerID,
+                                                ApproachPermissionCategoryCd: *ea.ApproachPermissionCategoryCd,
+                                                //? callback
+                                                // DeleteFooter:                 footer.DeleteFooter{DeleteFlg: false},
+                                                // Footer:                       footer.Footer{VersionNo: 1},
+                                        }
+
+                                        addApproachList = append(addApproachList, a)
+                                }</span>
+                        }
+                }
+
+                <span class="cov8" title="1">targetApproachList = append(targetApproachList, addApproachList...)</span>
+
+        } else<span class="cov8" title="1"> { // 新規登録モード
+                for _, ea := range e.ApproachPermissionList </span><span class="cov8" title="1">{
+                        // アプローチ可否フラグが true の場合
+                        if *ea.IsApproachPermission </span><span class="cov8" title="1">{
+                                a := model.CustomerTyingApproachPermission{
+                                        CustomerId:                   targetCustomerID,
+                                        ApproachPermissionCategoryCd: *ea.ApproachPermissionCategoryCd,
+                                        DeleteFooter:                 footer.DeleteFooter{DeleteFlg: false},
+                                        Footer:                       footer.Footer{VersionNo: 1},
+                                }
+                                addApproachList = append(addApproachList, a)
+                        }</span>
+                }
+                // 5-2-17. 追加アプローチリスト を 対象アプローチリスト に結合する
+                <span class="cov8" title="1">targetApproachList = append(targetApproachList, addApproachList...)</span>
+
+        }
+
+        // 5-3. 対象アプローチリストを 顧客アプローチ可否 に保存
+        <span class="cov8" title="1">for _, ta := range targetApproachList </span><span class="cov8" title="1">{
+                if err := tx.Save(&amp;ta).Error; err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package web
+
+import (
+        edomain "ZO_School_Wares/api/common/error/domain"
+        "ZO_School_Wares/api/common/response"
+        "ZO_School_Wares/api/cus/api-cus-012/domain"
+        "ZO_School_Wares/api/cus/api-cus-012/usecase"
+        "errors"
+        "net/http"
+        "strings"
+
+        "github.com/labstack/echo/v4"
+        "gorm.io/gorm"
+)
+
+type handler struct {
+        s usecase.Service
+}
+
+// Handler はHandlerのインターフェース
+type Handler interface {
+        UpdateCustomersInfo(c echo.Context) error
+}
+
+func NewHandler(s usecase.Service) Handler <span class="cov8" title="1">{
+        return &amp;handler{s: s}
+}</span>
+
+// @Summary        PKG_API_CUS_012 顧客情報 登録更新
+// @Description    顧客情報を登録および更新
+// @Tags           cus_
+// @Router         /customers-info/update [POST]
+// @Success        200     {object}    domain.ResponseData     "レスポンス用構造体"
+// @Failure        401     {object}    domain.WarningResponse  "API_MSG_0001 トークン認証エラー。ログインからやり直してください。"
+// @Failure        404     {object}    domain.WarningResponse  "API_MSG_0002 該当するデータは存在しません。"
+// @Failure        409     {object}    domain.WarningResponse  "API_MSG_0008 他のユーザーによってデータが更新されているため処理を中止しました。最新の情報を確認してください。"
+// @Failure        500     {object}    domain.ErrorResponse    "API_MSG_0016 DB異常が発生し処理が強制終了しました。しばらくしてからやり直してください。"
+func (h *handler) UpdateCustomersInfo(c echo.Context) error <span class="cov8" title="1">{
+        // リクエストパラメータ取得＆バリデーション
+        var param domain.RequestParam
+        if err := c.Bind(&amp;param); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        // 変則バリデーション
+        <span class="cov8" title="1">e := param.EntryData
+        if e.CustomerId != nil </span><span class="cov8" title="1">{
+                // 更新モード
+                if e.VersionNo == nil </span><span class="cov0" title="0">{
+                        return response.GetWarningResponse(http.StatusBadRequest, "API_MSG_0005", "version_no")
+                }</span>
+        } else <span class="cov8" title="1">{
+                // 新規登録モード
+        }</span>
+
+        <span class="cov8" title="1">missmap := make(map[int]string)
+        for _, ea := range e.AttributeList </span><span class="cov8" title="1">{
+                if ea.AttributeCd == nil </span><span class="cov8" title="1">{
+                        missmap[0] = "attribute_cd"
+                }</span>
+                <span class="cov8" title="1">if ea.IsAttribute == nil </span><span class="cov8" title="1">{
+                        missmap[1] = "is_attribute"
+                }</span>
+        }
+        <span class="cov8" title="1">for _, ef := range e.FamilyMembersList </span><span class="cov8" title="1">{
+                if ef.CustomerId == nil </span><span class="cov8" title="1">{
+                        missmap[2] = "customer_id"
+                }</span>
+                <span class="cov8" title="1">if ef.IsFamily == nil </span><span class="cov8" title="1">{
+                        missmap[3] = "is_family"
+                }</span>
+        }
+        <span class="cov8" title="1">for _, ep := range e.ApproachPermissionList </span><span class="cov8" title="1">{
+                if ep.ApproachPermissionCategoryCd == nil </span><span class="cov8" title="1">{
+                        missmap[4] = "approach_permission_category_cd"
+                }</span>
+                <span class="cov8" title="1">if ep.IsApproachPermission == nil </span><span class="cov8" title="1">{
+                        missmap[5] = "is_approach_permission"
+                }</span>
+        }
+        <span class="cov8" title="1">if len(missmap) &gt; 0 </span><span class="cov8" title="1">{
+                missinges := make([]string, 0)
+                for i := range 6 </span><span class="cov8" title="1">{
+                        if s, exists := missmap[i]; exists </span><span class="cov8" title="1">{
+                                missinges = append(missinges, s)
+                        }</span>
+                }
+                <span class="cov8" title="1">return response.GetWarningResponse(http.StatusBadRequest, "API_MSG_0005", strings.Join(missinges, ","))</span>
+        }
+
+        <span class="cov8" title="1">res, err := h.s.UpdateCustomersInfo(param, c)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return response.GetWarningResponse(http.StatusNotFound, "API_MSG_0002")
+                }</span> else<span class="cov8" title="1"> if errors.Is(err, gorm.ErrDuplicatedKey) </span><span class="cov8" title="1">{
+                        return response.GetWarningResponse(http.StatusConflict, "API_MSG_0008")
+                }</span> else<span class="cov8" title="1"> {
+                        if apiErr, ok := err.(*edomain.APIError); ok &amp;&amp; apiErr.MessageId == "API_MSG_0019" </span><span class="cov8" title="1">{
+                                return response.GetWarningResponse(http.StatusNotFound, "API_MSG_0002")
+                        }</span>
+
+                        <span class="cov8" title="1">return response.GetErrorResponse(http.StatusInternalServerError, "API_MSG_0016")</span>
+                }
+        }
+
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, res)</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package usecase
+
+import (
+        "ZO_School_Wares/api/cus/api-cus-012/domain"
+        "ZO_School_Wares/api/cus/api-cus-012/usecase/repository"
+
+        "github.com/labstack/echo/v4"
+)
+
+type service struct {
+        rep repository.ServiceRepository
+}
+
+// Service はインターフェースです。
+type Service interface {
+        UpdateCustomersInfo(param domain.RequestParam, c echo.Context) (domain.ResponseData, error)
+}
+
+// NewService は初期化済みのServiceを返す。
+func NewService(r repository.ServiceRepository) Service <span class="cov8" title="1">{
+        return &amp;service{rep: r}
+}</span>
+
+func (s *service) UpdateCustomersInfo(param domain.RequestParam, c echo.Context) (domain.ResponseData, error) <span class="cov8" title="1">{
+        return s.rep.UpdateCustomersInfo(param, c)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

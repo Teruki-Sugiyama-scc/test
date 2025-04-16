@@ -1,0 +1,6 @@
+{
+    "error": {
+        "message_id": "API_MSG_0005",
+        "message_text": "attribute_cd,is_attribute,customer_id,is_family,approach_permission_category_cd,is_approach_permissionを入力してください。"
+    }
+}
