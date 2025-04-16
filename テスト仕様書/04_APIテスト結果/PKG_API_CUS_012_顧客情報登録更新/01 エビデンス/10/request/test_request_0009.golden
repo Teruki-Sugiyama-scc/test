@@ -1,0 +1,106 @@
+{
+    "entry_data": {
+        "customer_id": 99,
+        "customer_no": "A10001",
+        "student_last_name": "姓１",
+        "student_first_name": "名１",
+        "student_last_name_kana": "セイ１",
+        "student_first_name_kana": "メイ１",
+        "school_year_category_cd": "11",
+        "birthday": "2015-01-01",
+        "gender_category_cd": "1",
+        "student_mail_address": "student1@xxx.co.jp",
+        "attribute_list": [
+            {
+                "attribute_cd": "1",
+                "is_attribute": true,
+                "version_no": null
+            },
+            {
+                "attribute_cd": "2",
+                "is_attribute": true,
+                "version_no": null
+            }
+        ],
+        "main_class_room_cd": "11111",
+        "enrolled_elementary_school_cd": "110000",
+        "enrolled_elementary_school_note": "メモ110000",
+        "enrolled_junior_high_school_school_cd": "210000",
+        "enrolled_junior_high_school_school_note": "メモ210000",
+        "enrolled_high_school_cd": "310000",
+        "enrolled_high_school_note": "メモ310000",
+        "aspiration_junior_high_school_cd1": "210000",
+        "aspiration_junior_high_school_cd2": "210001",
+        "aspiration_junior_high_school_cd3": "210002",
+        "aspiration_high_school_cd1": "310000",
+        "aspiration_high_school_cd2": "310001",
+        "aspiration_high_school_cd3": "310002",
+        "aspiration_university_cd1": "99999410000",
+        "aspiration_university_cd2": "99999410001",
+        "aspiration_university_cd3": "99999410002",
+        "contractor_last_name": "親姓１",
+        "contractor_first_name": "親名１",
+        "contractor_last_name_kana": "オヤセイ１",
+        "contractor_first_name_kana": "オヤメイ１",
+        "contractor_relationship": "父",
+        "contractor_mail_address": "contractor1@xxx.co.jp",
+        "contractor_post_code": "4240001",
+        "contractor_prefecture_category_cd": "21",
+        "contractor_address1": "静岡市清水区梅ケ谷",
+        "contractor_address2": "１－１",
+        "contractor_address3": "１０１号",
+        "telephone_number1": "090-1111-1111",
+        "telephone_number1_note": "父携帯",
+        "telephone_number2": "052-111-1111",
+        "telephone_number2_note": "父２",
+        "emergency_telephone_number": "090-9999-1111",
+        "emergency_telephone_number_note": "父緊急",
+        "fax_number": "052-111-1119",
+        "fax_number_note": "父Ｆ",
+        "family_members_list": [
+            {
+                "customer_id": 1,
+                "is_family": true,
+                "version_no": 1
+            }
+        ],
+        "combined_billing_customer_id": 1,
+        "combined_billing_delete_flg": false,
+        "combined_billing_version_no": null,
+        "note": "備考１",
+        "enrollment_desired": "月曜と水曜の18時以降１",
+        "is_demand": true,
+        "is_vip": true,
+        "is_vip_note": "授業態度に難あり１",
+        "approach_permission_list": [
+            {
+                "approach_permission_category_cd": "1",
+                "is_approach_permission": true,
+                "version_no": null
+            },
+            {
+                "approach_permission_category_cd": "3",
+                "is_approach_permission": true,
+                "version_no": null
+            },
+            {
+                "approach_permission_category_cd": "4",
+                "is_approach_permission": true,
+                "version_no": null
+            },
+            {
+                "approach_permission_category_cd": "5",
+                "is_approach_permission": true,
+                "version_no": null
+            }
+        ],
+        "approach_permission_memo": "特記事項１",
+        "bank_id": 1,
+        "bank_branch_id": 11,
+        "bank_account_type_id": "1",
+        "bank_account_no": "1111111",
+        "account_holder": "ﾎｺﾞｼｬ ｲﾁ",
+        "customer_status_category_cd": null,
+        "version_no": 1
+    }
+}

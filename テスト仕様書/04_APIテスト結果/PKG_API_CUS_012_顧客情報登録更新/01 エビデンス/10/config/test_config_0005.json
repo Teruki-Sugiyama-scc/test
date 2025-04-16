@@ -1,0 +1,7 @@
+{
+    "title": "No.5 正常系 null 更新",
+    "db": "db_顧客_5,db_合算請求先_5,db_属性_5,db_アプローチ_5",
+    "status_code": 200,
+    "request": "test_request_0005.golden",
+    "response": "test_response_0005.golden"
+}

@@ -1,0 +1,13 @@
+- combined_billing_customer_id: 1
+  create_at: 2025-04-14T14:53:06+09:00
+  create_user: 1
+  create_user_category_cd: "1"
+  customer_id: 3
+  delete_at: null
+  delete_flg: 0
+  delete_user: null
+  delete_user_category_cd: null
+  update_at: 2025-04-14T14:53:06+09:00
+  update_user: 1
+  update_user_category_cd: "1"
+  version_no: 1

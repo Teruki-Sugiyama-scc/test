@@ -1,0 +1,7 @@
+{
+    "title": "No.7 正常系 属性,アプローチ 更新",
+    "db": "db_顧客_7,db_合算請求先_7,db_属性_7,db_アプローチ_7",
+    "status_code": 200,
+    "request": "test_request_0007.golden",
+    "response": "test_response_0007.golden"
+}

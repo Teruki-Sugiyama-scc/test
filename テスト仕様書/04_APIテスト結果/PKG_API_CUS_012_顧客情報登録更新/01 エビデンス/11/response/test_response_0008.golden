@@ -1,0 +1,6 @@
+{
+    "error": {
+        "message_id": "API_MSG_0001",
+        "message_text": "トークン認証エラー。ログインからやり直してください。"
+    }
+}

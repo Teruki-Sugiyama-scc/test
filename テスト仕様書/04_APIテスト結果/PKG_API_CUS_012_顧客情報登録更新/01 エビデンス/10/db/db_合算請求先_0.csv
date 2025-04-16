@@ -1,0 +1,2 @@
+combined_bills
+combined_billing_customer_id,customer_id,delete_flg,delete_at,delete_user_category_cd,delete_user,create_at,create_user_category_cd,create_user,update_at,update_user_category_cd,update_user,version_no

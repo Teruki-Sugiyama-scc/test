@@ -1,0 +1,7 @@
+{
+    "title": "No.13 異常系 パラメータ 欠損",
+    "status_code": 400,
+    "db": "db_顧客_0,db_合算請求先_0,db_属性_0,db_アプローチ_0",
+    "request": "test_request_0013.golden",
+    "response": "test_response_0013.golden"
+}

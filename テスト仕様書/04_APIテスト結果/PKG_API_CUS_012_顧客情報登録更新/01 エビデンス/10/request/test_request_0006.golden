@@ -1,0 +1,100 @@
+{
+    "entry_data": {
+        "customer_id": 1,
+        "customer_no": "A10005",
+        "student_last_name": "姓５",
+        "student_first_name": "名５",
+        "student_last_name_kana": "セイ５",
+        "student_first_name_kana": "メイ５",
+        "school_year_category_cd": "32",
+        "birthday": "2008-01-01",
+        "gender_category_cd": "2",
+        "student_mail_address": "",
+        "attribute_list": [
+            {
+                "attribute_cd": "1",
+                "is_attribute": true,
+                "version_no": 1
+            },
+            {
+                "attribute_cd": "2",
+                "is_attribute": false,
+                "version_no": null
+            }
+        ],
+        "main_class_room_cd": "44444",
+        "enrolled_elementary_school_cd": "",
+        "enrolled_elementary_school_note": "",
+        "enrolled_junior_high_school_school_cd": "",
+        "enrolled_junior_high_school_school_note": "",
+        "enrolled_high_school_cd": "",
+        "enrolled_high_school_note": "",
+        "aspiration_junior_high_school_cd1": "",
+        "aspiration_junior_high_school_cd2": "",
+        "aspiration_junior_high_school_cd3": "",
+        "aspiration_high_school_cd1": "",
+        "aspiration_high_school_cd2": "",
+        "aspiration_high_school_cd3": "",
+        "aspiration_university_cd1": "",
+        "aspiration_university_cd2": "",
+        "aspiration_university_cd3": "",
+        "contractor_last_name": "",
+        "contractor_first_name": "",
+        "contractor_last_name_kana": "",
+        "contractor_first_name_kana": "",
+        "contractor_relationship": "",
+        "contractor_mail_address": "contractor4@xxx.co.jp",
+        "contractor_post_code": "",
+        "contractor_prefecture_category_cd": "01",
+        "contractor_address1": "",
+        "contractor_address2": "",
+        "contractor_address3": "",
+        "telephone_number1": "",
+        "telephone_number1_note": "",
+        "telephone_number2": "",
+        "telephone_number2_note": "",
+        "emergency_telephone_number": "",
+        "emergency_telephone_number_note": "",
+        "fax_number": "",
+        "fax_number_note": "",
+        "family_members_list": null,
+        "combined_billing_customer_id": null,
+        "combined_billing_delete_flg": null,
+        "combined_billing_version_no": null,
+        "note": "",
+        "enrollment_desired": "",
+        "is_demand": false,
+        "is_vip": false,
+        "is_vip_note": "",
+        "approach_permission_list": [
+            {
+                "approach_permission_category_cd": "1",
+                "is_approach_permission": false,
+                "version_no": null
+            },
+            {
+                "approach_permission_category_cd": "3",
+                "is_approach_permission": true,
+                "version_no": 1
+            },
+            {
+                "approach_permission_category_cd": "4",
+                "is_approach_permission": false,
+                "version_no": null
+            },
+            {
+                "approach_permission_category_cd": "5",
+                "is_approach_permission": false,
+                "version_no": null
+            }
+        ],
+        "approach_permission_memo": "",
+        "bank_id": null,
+        "bank_branch_id": null,
+        "bank_account_type_id": "",
+        "bank_account_no": "",
+        "account_holder": "",
+        "customer_status_category_cd": null,
+        "version_no": 2
+    }
+}

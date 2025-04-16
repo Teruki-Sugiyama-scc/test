@@ -1,0 +1,7 @@
+{
+    "title": "No.2 正常系 上書更新",
+    "db": "db_顧客_2,db_合算請求先_2,db_属性_2,db_アプローチ_2",
+    "status_code": 200,
+    "request": "test_request_0002.golden",
+    "response": "test_response_0002.golden"
+}
